@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: demo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://user:password@db/demo
+      - JWT_SECRET=supersecretkey
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+
+volumes:
+  pgdata:

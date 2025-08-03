@@ -1,0 +1,18 @@
+# Rust
+/target
+**/*.rs.bk
+
+# Node
+node_modules/
+dist/
+build/
+
+# dotenv
+.env
+
+# Docker
+*.log
+*.pid
+docker-volume-data/
+
+**/.DS_Store
