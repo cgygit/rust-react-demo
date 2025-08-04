@@ -16,3 +16,17 @@ pub struct LoginPayload {
 pub struct TokenResponse {
     pub token: String,
 }
+
+#[derive(Serialize)]
+pub struct Device {
+    pub id: i32,
+    pub name: String,
+    pub description: Option<String>,
+    pub owner_id: i32,
+}
+
+#[derive(Deserialize)]
+pub struct CreateDevicePayload {
+    pub name: String,
+    pub description: Option<String>,
+}

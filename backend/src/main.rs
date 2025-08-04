@@ -3,7 +3,10 @@ mod handlers;
 mod models;
 mod auth;
 
-use axum::{routing::get, Router, routing::post};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use tower_http::cors::{CorsLayer, Any};
 use std::net::SocketAddr;
 use dotenv::dotenv;
@@ -16,17 +19,23 @@ async fn main() {
     
     let pool = init_db_pool().await;
 
-    let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any);
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     let app = Router::new()
         .route("/api/hello", get(|| async { "Hello" }))
         .route("/api/register", post(register))
         .route("/api/login", post(login))
+        .route("/api/devices", get(get_devices).post(create_device))
         .with_state(pool)
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3001));
     println!("Listening on {}", addr);
-    axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app)
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
         .await
         .unwrap();
 }
