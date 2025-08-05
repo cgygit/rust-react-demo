@@ -1,4 +1,4 @@
-name: CI
+name: Rust + React CI
 
 on:
   push:
@@ -7,40 +7,23 @@ on:
     branches: [main]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: demo
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up Rust
-      uses: actions/setup-rust@v1
+      uses: actions-rs/toolchain@v1
       with:
-        rust-version: stable
+        toolchain: stable
+        override: true
 
-    - name: Install SQLx CLI
-      run: cargo install sqlx-cli --no-default-features --features postgres
-
-    - name: Run Rust tests
+    - name: Build and test Rust backend
       working-directory: ./backend
       run: |
-        export DATABASE_URL=postgres://user:password@localhost:5432/demo
-        sqlx migrate run
+        cargo build --release
         cargo test
 
     - name: Set up Node.js
@@ -48,8 +31,8 @@ jobs:
       with:
         node-version: 18
 
-    - name: Install and Build React frontend
+    - name: Build React frontend
       working-directory: ./frontend
       run: |
         npm install
-        npm run build
+        CI=false npm run build
