@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     services:
@@ -36,12 +36,20 @@ jobs:
     - name: Install SQLx CLI
       run: cargo install sqlx-cli --no-default-features --features postgres
 
-    - name: Run migrations
-      run: sqlx migrate run
-      env:
-        DATABASE_URL: postgres://user:password@localhost:5432/demo
+    - name: Run Rust tests
+      working-directory: ./backend
+      run: |
+        export DATABASE_URL=postgres://user:password@localhost:5432/demo
+        sqlx migrate run
+        cargo test
 
-    - name: Run tests
-      run: cargo test
-      env:
-        DATABASE_URL: postgres://user:password@localhost:5432/demo
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Install and Build React frontend
+      working-directory: ./frontend
+      run: |
+        npm install
+        npm run build
