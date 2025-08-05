@@ -15,6 +15,7 @@ function App() {
   );
 }
 
+
 function AuthPage() {
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(null);
